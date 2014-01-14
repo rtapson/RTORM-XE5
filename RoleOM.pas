@@ -380,7 +380,7 @@ end;
 initialization
   RegisterClasses([TRole, TPermission]);
   PersistenceBroker.AddClassMap(TRole.ClassName + '.SQL', TRoleMapper.Create as IClassMap);
-  PersistenceBroker.AddClassMap(TRole.ClassName + '.TextFile', TTextFileMapper.Create as IClassMap);
+//  PersistenceBroker.AddClassMap(TRole.ClassName + '.TextFile', TTextFileMapper.Create as IClassMap);
   PersistenceBroker.AddClassMap(TPermission.ClassName + '.SQL', TPermsissionMapper.Create as IClassMap);
   GlobalContainer.RegisterComponent<TRole>.Implements<IRole>(TRole.ClassName);
   GlobalContainer.RegisterComponent<TPermission>.Implements<IPermission>;

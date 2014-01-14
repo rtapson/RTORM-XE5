@@ -4,8 +4,9 @@ interface
 
 uses
   RTORM.PersistentObject, RTORM.PersistenceMechanism, Spring.Collections,
-  RTORM.Maps.Attributes, RTORM.Sql, RTORM.PersistenceMechanism.TextFiles,
-  RTORM.PersistenceCritieria, SQLExpr, SysUtils, RTORM.UniDirectionalAssociationMap;
+  RTORM.Maps.Attributes, RTORM.Sql,
+  RTORM.PersistenceCritieria, SysUtils, RTORM.UniDirectionalAssociationMap,
+  RTORM.PersistenceMechanism.Database;
 
 type
   ETypeNotSupported = class(Exception);
@@ -66,8 +67,9 @@ type
   TRelationalDatabaseMapper = class(TClassMap, IRelationalDatabaseMapper)
   private
     FRelationalDatabase : IRelationalDatabase;
+    FObj : IPersistentObject;
     procedure ExecuteSqlStatement(PersistenceMechanism: IPersistenceMechanism; aSqlStatement: ISqlStatement);
-    function OpenSqlStatement(PersistenceMechanism: IPersistenceMechanism; aSqlStatement: ISqlStatement): TSQLDataset;
+    function OpenSqlStatement(PersistenceMechanism: IPersistenceMechanism; aSqlStatement: ISqlStatement): IPersistentObject;
     function GetSelectSql(Distinct: boolean): ISqlStatement;
     function GetFromAndWhereSql: ISqlStatement; overload;
     function GetFromAndWhereSql(Critieria : IPersistenceCritieria): ISqlStatement; overload;
@@ -78,8 +80,8 @@ type
     function GetDeleteSQLFor(aObj: IPersistentObject; PersistenceMechanism: IPersistenceMechanism): ISqlStatement;
   protected
     function GetSelectSQLFor(aObj: IPersistentObject; PersistenceMechanism: IPersistenceMechanism): ISqlStatement;
-    procedure DatasetToObject(aDataset : TSQLDataset; aObj : IPersistentObject); virtual;
-    procedure ProcessDataset(ClassName : string; aDataset: TSqlDataset; ObjectList : IList<IPersistentObject>); virtual;
+//    procedure DatasetToObject(aDataset : TSQLDataset; aObj : IPersistentObject); virtual;
+//    procedure ProcessDataset(ClassName : string; aDataset: TSqlDataset; ObjectList : IList<IPersistentObject>); virtual;
   public
     procedure RetrieveObject(aObj: IPersistentObject; PersistenceMechanism: IPersistenceMechanism); override;
     procedure DeleteObject(aObj: IPersistentObject; PersistenceMechanism: IPersistenceMechanism); override;
@@ -88,24 +90,10 @@ type
     function FindObjectsWhere(Critieria : IPersistenceCritieria; PersistenceMechanism: IPersistenceMechanism): IList<IPersistentObject>; override;
   end;
 
-  ITextFileMapper = interface(IClassMap)
-    ['{01101EE7-ED90-4E27-A9EE-D24C8CDB6C6F}']
-  end;
-
-  TTextFileMapper = class(TClassMap, ITextFileMapper)
-  private
-    FTextFile : ITextFile;
-  public
-    procedure RetrieveObject(aObj: IPersistentObject; PersistenceMechanism: IPersistenceMechanism); override;
-    procedure DeleteObject(aObj: IPersistentObject; PersistenceMechanism: IPersistenceMechanism); override;
-    procedure UpdateObject(aObj: IPersistentObject; PersistenceMechanism: IPersistenceMechanism); override;
-    procedure InsertObject(aObj: IPersistentObject; PersistenceMechanism: IPersistenceMechanism); override;
-  end;
-
 implementation
 
 uses
-  CodeSiteLogging, rtti, System.TypInfo, DB, Classes, Spring.Services, Spring.Container,
+  CodeSiteLogging, rtti, System.TypInfo, {DB,} Classes, Spring.Services, Spring.Container,
   spring;
 
 {function GetTypeInfoFromName(aTypeName : String) : pTypeInfo;
@@ -153,7 +141,7 @@ begin
   FForClass := Value;
 end;
 
-procedure TRelationalDatabaseMapper.DatasetToObject(aDataset: TSQLDataset; aObj: IPersistentObject);
+(*procedure TRelationalDatabaseMapper.DatasetToObject(aDataset: TSQLDataset; aObj: IPersistentObject);
 var
   Attrib: IAttributeMap;
   context: TRttiContext;
@@ -216,7 +204,7 @@ begin
   finally
     context.free;
   end;
-end;
+end; *)
 
 procedure TRelationalDatabaseMapper.DeleteObject(aObj: IPersistentObject; PersistenceMechanism: IPersistenceMechanism);
 begin
@@ -233,20 +221,20 @@ end;
 function TRelationalDatabaseMapper.FindObjectsWhere(Critieria: IPersistenceCritieria; PersistenceMechanism: IPersistenceMechanism): IList<IPersistentObject>;
 var
   SqlStatement : ISqlStatement;
-  aDataset: TSQLDataSet;
+//  aDataset: TSQLDataSet;
   //aObj : IPersistentObject;
 begin
   if Supports(PersistenceMechanism, IRelationalDatabase, FRelationalDatabase) then
   begin
     SqlStatement := GetSelectSQL(False);
     SqlStatement.AddSqlStatement(GetFromAndWhereSql(Critieria));
-    aDataset := OpenSqlStatement(PersistenceMechanism, SqlStatement);
+    {aDataset := OpenSqlStatement(PersistenceMechanism, SqlStatement);
     try
       result := TCollections.CreateList<IPersistentObject>;
       ProcessDataset(Critieria.ObjectClassName, aDataset, result);
     finally
       aDataset.Free;
-    end;
+    end;}
   end;
 end;
 
@@ -394,13 +382,13 @@ begin
     ExecuteSqlStatement(PersistenceMechanism, GetInsertSQLFor(aObj, PersistenceMechanism));
 end;
 
-function TRelationalDatabaseMapper.OpenSqlStatement(PersistenceMechanism: IPersistenceMechanism; aSqlStatement: ISqlStatement): TSQLDataset;
+function TRelationalDatabaseMapper.OpenSqlStatement(PersistenceMechanism: IPersistenceMechanism; aSqlStatement: ISqlStatement): IPersistentObject;
 begin
   FRelationalDatabase.Open;
-  result := FRelationalDatabase.ExecuteSQL(aSqlStatement);
+  result := FRelationalDatabase.ExecuteSQL(aSqlStatement, Self.AttributeMaps, Fobj);
 end;
 
-procedure TRelationalDatabaseMapper.ProcessDataset(ClassName : string; aDataset: TSqlDataset; ObjectList: IList<IPersistentObject>);
+{procedure TRelationalDatabaseMapper.ProcessDataset(ClassName : string; aDataset: TSqlDataset; ObjectList: IList<IPersistentObject>);
 var
   aObj : IPersistentObject;
 begin
@@ -411,11 +399,11 @@ begin
     ObjectList.Add(aObj);
     aDataset.Next;
   end;
-end;
+end;}
 
 procedure TRelationalDatabaseMapper.RetrieveObject(aObj: IPersistentObject; PersistenceMechanism: IPersistenceMechanism);
 var
-  aDataset: TSQLDataSet;
+//  aDataset: TSQLDataSet;
   aAssoc: IUniDirectionalAssociationMap;
 
   RetCrit : IPersistenceCritieria;
@@ -429,12 +417,8 @@ var
 begin
   if Supports(PersistenceMechanism, IRelationalDatabase, FRelationalDatabase) then
   begin
-    aDataset := OpenSqlStatement(PersistenceMechanism, GetSelectSQLFor(aObj, PersistenceMechanism));
-    try
-      DataSetToObject(aDataset, aObj);
-    finally
-      aDataset.Free;
-    end;
+    FObj := aObj;
+    aObj := OpenSqlStatement(PersistenceMechanism, GetSelectSQLFor(aObj, PersistenceMechanism));
 
     context := TRttiContext.Create;
     try
@@ -753,30 +737,6 @@ begin
   else
     raise Exception.Create('Only SQL Datases are supported.');
   CodeSite.ExitMethod(Self, 'GetSelectSQLFor');
-end;
-
-{ TTextFileMapper }
-
-procedure TTextFileMapper.DeleteObject(aObj: IPersistentObject; PersistenceMechanism: IPersistenceMechanism);
-begin
-
-end;
-
-procedure TTextFileMapper.InsertObject(aObj: IPersistentObject; PersistenceMechanism: IPersistenceMechanism);
-begin
-  if Supports(PersistenceMechanism, ITextFile, FTextFile) then
-    FTextFile.SaveObject(aObj);
-end;
-
-procedure TTextFileMapper.RetrieveObject(aObj: IPersistentObject; PersistenceMechanism: IPersistenceMechanism);
-begin
-
-end;
-
-procedure TTextFileMapper.UpdateObject(aObj: IPersistentObject; PersistenceMechanism: IPersistenceMechanism);
-begin
-  if Supports(PersistenceMechanism, ITextFile, FTextFile) then
-    FTextFile.SaveObject(aObj);
 end;
 
 end.

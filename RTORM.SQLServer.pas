@@ -3,27 +3,31 @@ unit RTORM.SQLServer;
 interface
 
 uses
-  RTORM.persistencemechanism, SQLExpr, RTORM.Sql;
+  RTORM.persistencemechanism, SQLExpr, RTORM.Sql, RTORM.PersistentObject, RTORM.Maps.Attributes,
+  RTORM.PersistenceMechanism.Database, Spring.Collections;
 
 type
   IMSSQLServer = interface(IRelationalDatabase)
   ['{60135A53-FEB9-4478-BCCF-CFF5100BBE5A}']
-    function GetSQLConnection: TSQLConnection;
+    //function GetSQLConnection: TSQLConnection;
 
-//    function ExecuteSQL(aSQLStatement : ISqlStatement): TSQLDataSet;
+//    function ExecuteSQL(aSQLStatement : ISqlStatement): IPersistentObject;
     procedure ExecuteStatementNonQuery(aSQLStatement : ISqlStatement);
-    property SqlConnection : TSQLConnection read GetSQLConnection;
+    //property SqlConnection : TSQLConnection read GetSQLConnection;
   end;
 
   TMSSQLServerPersistenceMechanism = class(TRelationalDatabase, IMSSQLServer)
   private
     FSQLConnection : TSQLConnection;
-    function GetSQLConnection: TSQLConnection;
+    FDataset : TSQLDataSet;
+    FAttributes :  IDictionary<string, IAttributeMap>;
+//    function GetSQLConnection: TSQLConnection;
+    procedure DatasetToObject(aObj : IPersistentObject);
   public
     constructor Create;
     destructor Destroy; override;
     function Open: IPersistenceMechanism; override;
-    function ExecuteSQL(aSQLStatement : ISqlStatement): TSQLDataSet; override;
+    function ExecuteSQL(aSQLStatement : ISqlStatement; Attributes : IDictionary<string, IAttributeMap>; aObj : IPersistentObject): IPersistentObject; override;
     procedure ExecuteStatementNonQuery(aSQLStatement : ISqlStatement); override;
     procedure Close; override;
     function GetClauseStringAndBegin: string; override;
@@ -43,24 +47,90 @@ type
     function GetClauseStringValues: string; override;
     function GetClauseStringInnerJoin: string; override;
     //function ProcessSQL(const SQLStatement: string): PersistentObjectList; override;
-    property SqlConnection : TSQLConnection read GetSQLConnection;
+//    property SqlConnection : TSQLConnection read GetSQLConnection;
   end;
 
 implementation
 
 uses
-  CodeSiteLogging, SysUtils, DBXMSSQL, DB, RTORM.Broker;
+  CodeSiteLogging, SysUtils, DBXMSSQL, DB, RTORM.Broker, RTORM.Maps,
+  Rtti, System.TypInfo, ActiveX;
 
 { MSSQLServerPersistenceMechanism }
 
 procedure TMSSQLServerPersistenceMechanism.Close;
 begin
   FSQLConnection.Connected := False;
+  CoUninitialize;
 end;
 
 constructor TMSSQLServerPersistenceMechanism.Create;
 begin
   FSQLConnection := TSQLConnection.Create(nil);
+
+  FDataset := TSQLDataSet.Create(nil);
+  FDataset.SQLConnection := FSQLConnection;
+  FDataset.CommandType := ctQuery;
+
+end;
+
+procedure TMSSQLServerPersistenceMechanism.DatasetToObject(aObj: IPersistentObject);
+var
+  Attrib: IAttributeMap;
+  context: TRttiContext;
+  rtti: TRTTIType;
+  value : TValue;
+  i : integer;
+begin
+  context := TRttiContext.Create;
+  try
+    rtti := context.GetType(TObject(aObj).ClassInfo);
+    try
+      for Attrib in FAttributes.Values do
+      begin
+        case rtti.GetField('F' + Attrib.Name).FieldType.TypeKind of
+          tkWChar,
+          tkLString,
+          tkWString,
+          tkString,
+          tkChar,
+          tkUString : Value := FDataset.FieldByName(Attrib.ColumnMap.Name).AsString;
+          tkInteger,
+          tkInt64  :
+            begin
+              Value := StrToIntDef(FDataset.FieldByName(Attrib.ColumnMap.Name).AsString, 0);
+            end;
+          tkFloat  :
+            begin
+              case  FDataset.FieldByName(Attrib.ColumnMap.Name).DataType of
+                ftDateTime, ftTimeStamp : Value := FDataset.FieldByName(Attrib.ColumnMap.Name).AsDateTime;
+              else
+                Value := StrToFloat(FDataset.FieldByName(Attrib.ColumnMap.Name).AsString);
+              end;
+            end;
+          tkEnumeration:
+            begin
+              if rtti.GetField('F' + Attrib.Name).FieldType.Name = 'Boolean' then
+                Value := TValue.From(FDataset.FieldByName(Attrib.ColumnMap.Name).AsString = 'Y')
+              else
+                Value := TValue.FromOrdinal(Value.TypeInfo, GetEnumValue(Value.TypeInfo, FDataset.FieldByName(Attrib.ColumnMap.Name).AsString));
+            end;
+          tkSet:
+            begin
+              i :=  StringToSet(Value.TypeInfo, FDataset.FieldByName(Attrib.ColumnMap.Name).AsString);
+              TValue.Make(@i, Value.TypeInfo, Value);
+            end;
+        else
+          raise ETypeNotSupported.Create('Type not Supported');
+        end;
+        rtti.GetField('F' + Attrib.Name).SetValue(TObject(aObj), Value)
+      end;
+    finally
+      rtti.Free;
+    end;
+  finally
+    context.free;
+  end;
 end;
 
 destructor TMSSQLServerPersistenceMechanism.Destroy;
@@ -70,14 +140,16 @@ begin
   inherited;
 end;
 
-function TMSSQLServerPersistenceMechanism.ExecuteSQL(aSQLStatement : ISqlStatement): TSQLDataSet;
+function TMSSQLServerPersistenceMechanism.ExecuteSQL(aSQLStatement : ISqlStatement;  Attributes : IDictionary<string, IAttributeMap>; aObj : IPersistentObject): IPersistentObject;
 begin
-  result := TSQLDataset.Create(nil);
-  result.SQLConnection := FSQLConnection;
-  result.CommandType := ctQuery;
+  CodeSite.EnterMethod(Self, 'ExecuteSQL');
   CodeSite.Send(aSQLStatement.ToString);
-  result.CommandText := aSQLStatement.ToString;
-  result.Open;
+  FAttributes := Attributes;
+  FDataset.CommandText := aSQLStatement.ToString;
+  FDataset.Open;
+  DatasetToObject(aObj);
+  result := aObj;
+  CodeSite.ExitMethod(Self, 'ExecuteSQL');
 end;
 
 procedure TMSSQLServerPersistenceMechanism.ExecuteStatementNonQuery(aSQLStatement : ISqlStatement);
@@ -178,13 +250,14 @@ begin
   result := 'SQL';
 end;
 
-function TMSSQLServerPersistenceMechanism.GetSQLConnection: TSQLConnection;
+{function TMSSQLServerPersistenceMechanism.GetSQLConnection: TSQLConnection;
 begin
   result := FSQLConnection;
-end;
+end;}
 
 function TMSSQLServerPersistenceMechanism.Open: IPersistenceMechanism;
 begin
+  CoInitializeEx(nil, 0);
   FSQLConnection.DriverName := 'MSSQL';
   FSQLConnection.Params.Values['driver'] := 'MSSQL';
 //  FSQLConnection.Params.Values['OS Authentication'] := 'False';

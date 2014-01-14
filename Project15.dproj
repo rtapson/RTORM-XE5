@@ -102,6 +102,8 @@
         <DCCReference Include="RTORM.PersistenceMechanism.TextFiles.pas"/>
         <DCCReference Include="RTORM.UniDirectionalAssociationMap.pas"/>
         <DCCReference Include="ApplicationUserOM.pas"/>
+        <DCCReference Include="RTORM.Maps.TextFile.pas"/>
+        <DCCReference Include="RTORM.PersistenceMechanism.Database.pas"/>
         <None Include="ModelSupport_Project15\default.txaPackage"/>
         <None Include="ModelSupport_Project15\default.txvpck"/>
         <None Include="ModelSupport_Project15\Project15\default.txvpck"/>

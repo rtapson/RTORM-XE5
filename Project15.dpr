@@ -17,7 +17,9 @@ uses
   RTORM.SQLServer.StoredProcedure in 'RTORM.SQLServer.StoredProcedure.pas',
   RTORM.PersistenceMechanism.TextFiles in 'RTORM.PersistenceMechanism.TextFiles.pas',
   RTORM.UniDirectionalAssociationMap in 'RTORM.UniDirectionalAssociationMap.pas',
-  ApplicationUserOM in 'ApplicationUserOM.pas';
+  ApplicationUserOM in 'ApplicationUserOM.pas',
+  RTORM.Maps.TextFile in 'RTORM.Maps.TextFile.pas',
+  RTORM.PersistenceMechanism.Database in 'RTORM.PersistenceMechanism.Database.pas';
 
 {$R *.res}
 

@@ -23,7 +23,8 @@ uses
   RTORM.Broker in '..\RTORM.Broker.pas',
   ApplicationUserOM in '..\ApplicationUserOM.pas',
   RTORM.SQLServer in '..\RTORM.SQLServer.pas',
-  Spring.Container;
+  Spring.Container,
+  RTORM.PersistenceMechanism.Database in '..\RTORM.PersistenceMechanism.Database.pas';
 
 var
   runner : ITestRunner;

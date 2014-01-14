@@ -42,6 +42,7 @@ begin
 
   Mapper.RetrieveObject(User, FDatabase);
   //Mapper.GetSelectSQLFor(User, FDatabase);
+  Assert.AreEqual(User.ApplicationLoginId, 'RTAPSON');
 end;
 
 initialization

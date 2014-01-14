@@ -38,7 +38,7 @@ end;
 function TSqlServerStoredProcedure.OpenStoredProcedure(aSqlStatement: ISqlStatement): TSQLDataSet;
 begin
   result := TSQLDataset.Create(nil);
-  result.SQLConnection := SQLConnection;
+//  result.SQLConnection := FSQLConnection;
   result.CommandType := ctQuery;
   CodeSite.Send(aSQLStatement.ToString);
   result.CommandText := aSQLStatement.ToString;
