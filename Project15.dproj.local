@@ -1,0 +1,8 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<BorlandProject>
+  <Transactions>
+    <Transaction>2014/01/13 12:52:00.105,=C:\Projects\RTORM-XE5\Unit2.pas</Transaction>
+    <Transaction>2014/01/13 12:52:10.186,C:\Projects\RTORM-XE5\AppicationUserOM.pas=C:\Projects\RTORM-XE5\Unit2.pas</Transaction>
+    <Transaction>2014/01/13 13:17:22.961,C:\Projects\RTORM-XE5\ApplicationUserOM.pas=C:\Projects\RTORM-XE5\AppicationUserOM.pas</Transaction>
+  </Transactions>
+</BorlandProject>
