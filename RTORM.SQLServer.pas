@@ -49,7 +49,7 @@ type
 implementation
 
 uses
-  CodeSiteLogging, SysUtils, Dialogs, DBXMSSQL, DB, RTORM.Broker;
+  CodeSiteLogging, SysUtils, DBXMSSQL, DB, RTORM.Broker;
 
 { MSSQLServerPersistenceMechanism }
 

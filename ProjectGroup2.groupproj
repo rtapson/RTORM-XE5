@@ -1,0 +1,60 @@
+﻿<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+    <PropertyGroup>
+        <ProjectGuid>{E37E4E01-6B61-4AA7-995E-BE5A8282CC5B}</ProjectGuid>
+    </PropertyGroup>
+    <ItemGroup>
+        <Projects Include="Project15.dproj">
+            <Dependencies/>
+        </Projects>
+        <Projects Include="..\DUnitX\Examples\DUnitXExamples_XE5.dproj">
+            <Dependencies/>
+        </Projects>
+        <Projects Include="Tests\RTORMTests.dproj">
+            <Dependencies/>
+        </Projects>
+    </ItemGroup>
+    <ProjectExtensions>
+        <Borland.Personality>Default.Personality.12</Borland.Personality>
+        <Borland.ProjectType/>
+        <BorlandProject>
+            <Default.Personality/>
+        </BorlandProject>
+    </ProjectExtensions>
+    <Target Name="Project15">
+        <MSBuild Projects="Project15.dproj"/>
+    </Target>
+    <Target Name="Project15:Clean">
+        <MSBuild Projects="Project15.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="Project15:Make">
+        <MSBuild Projects="Project15.dproj" Targets="Make"/>
+    </Target>
+    <Target Name="DUnitXExamples_XE5">
+        <MSBuild Projects="..\DUnitX\Examples\DUnitXExamples_XE5.dproj"/>
+    </Target>
+    <Target Name="DUnitXExamples_XE5:Clean">
+        <MSBuild Projects="..\DUnitX\Examples\DUnitXExamples_XE5.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="DUnitXExamples_XE5:Make">
+        <MSBuild Projects="..\DUnitX\Examples\DUnitXExamples_XE5.dproj" Targets="Make"/>
+    </Target>
+    <Target Name="RTORMTests">
+        <MSBuild Projects="Tests\RTORMTests.dproj"/>
+    </Target>
+    <Target Name="RTORMTests:Clean">
+        <MSBuild Projects="Tests\RTORMTests.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="RTORMTests:Make">
+        <MSBuild Projects="Tests\RTORMTests.dproj" Targets="Make"/>
+    </Target>
+    <Target Name="Build">
+        <CallTarget Targets="Project15;DUnitXExamples_XE5;RTORMTests"/>
+    </Target>
+    <Target Name="Clean">
+        <CallTarget Targets="Project15:Clean;DUnitXExamples_XE5:Clean;RTORMTests:Clean"/>
+    </Target>
+    <Target Name="Make">
+        <CallTarget Targets="Project15:Make;DUnitXExamples_XE5:Make;RTORMTests:Make"/>
+    </Target>
+    <Import Project="$(BDS)\Bin\CodeGear.Group.Targets" Condition="Exists('$(BDS)\Bin\CodeGear.Group.Targets')"/>
+</Project>

@@ -106,7 +106,7 @@ implementation
 
 uses
   CodeSiteLogging, rtti, System.TypInfo, DB, Classes, Spring.Services, Spring.Container,
-  RoleOM, spring;
+  spring;
 
 {function GetTypeInfoFromName(aTypeName : String) : pTypeInfo;
 var
@@ -276,7 +276,7 @@ var
   Map: IAttributeMap;
   PrimaryTable, WhereClause : string;
 
-  KeyMaps : IList<IAttributeMap>;
+  KeyMaps : IEnumerable<IAttributeMap>;
 begin
   CodeSite.EnterMethod(Self, 'GetFromAndWhereSql');
   result := TSqlStatement.Create;
@@ -332,7 +332,7 @@ begin
     function(const Attribute : IAttributeMap): boolean
     begin
       result := Attribute.ColumnMap.ColumnType = ktPrimary;
-    end).ToList;
+    end);
 
   result.AddSqlClause(KeyMaps.First.ColumnMap.TableMap.FullyQualifiedName);
 

@@ -103,7 +103,7 @@ begin
   end;
 end;
 
-initialization
-  PersistenceBroker.AddPersistenceMechansim('TextFile', TTextFile.Create);
+//initialization
+//  PersistenceBroker.AddPersistenceMechansim('TextFile', TTextFile.Create);
 
 end.
