@@ -6,7 +6,7 @@ uses
   rtorm.PersistentObject, RTORM.Maps;
 
 type
-  IAppplicationUser = interface(IPersistentObject)
+  IApplicationUser = interface(IPersistentObject)
     ['{5B30B445-7D61-473F-B2B8-D723F550D66A}']
     function GetApplicationLoginId: string;
     function GetCompanyNumber: string;
@@ -21,7 +21,7 @@ type
     property ApplicationLoginId: string read GetApplicationLoginId;
   end;
 
-  TApplicationUser = class(TPersistentObject, IAppplicationUser)
+  TApplicationUser = class(TPersistentObject, IApplicationUser)
   private
     FApplicationLoginId : string;
     FCompanyNumber : string;
@@ -57,7 +57,7 @@ type
 implementation
 
 uses
-  System.Classes, RTORM.Maps.Attributes, RTORM.Broker, Spring.Container;
+  System.Classes, RTORM.Maps.Attributes{, RTORM.Broker, Spring.Container};
 
 { TApplicationUser }
 
@@ -139,8 +139,8 @@ end;
 
 initialization
   RegisterClasses([TApplicationUser]);
-  PersistenceBroker.AddClassMap(TApplicationUser.ClassName + '.SQL', TApplicationMapperMapper.Create as IClassMap);
-  GlobalContainer.RegisterComponent<TApplicationUser>.Implements<IAppplicationUser>(TApplicationUser.ClassName);
+//  PersistenceBroker.AddClassMap(TApplicationUser.ClassName + '.SQL', TApplicationMapperMapper.Create as IClassMap);
+//  GlobalContainer.RegisterComponent<TApplicationUser>.Implements<IAppplicationUser>(TApplicationUser.ClassName);
 
 
 end.

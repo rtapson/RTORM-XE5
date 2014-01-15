@@ -3,14 +3,14 @@ unit RTORM.Test.Maps;
 interface
 
 uses
-  DUnitX.TestFramework, RTORM.SQLServer;
+  DUnitX.TestFramework;
 
 type
   {$M+}
   [TestFixture('RelationalDatabaseMapperTests', 'General Map Tests')]
   TRelationalDatabaseMapperMapTests = class
   private
-    FDatabase : IMSSQLServer;
+
   public
     [Setup]
     procedure Setup;
@@ -23,29 +23,31 @@ type
 implementation
 
 uses
-  RTORM.Maps, ApplicationUserOM;
+  RTORM.Maps, ApplicationUserOM, RTORM.SQLServer;
 
 { TRelationalDatabaseMapperMapTests }
 
 procedure TRelationalDatabaseMapperMapTests.Setup;
 begin
-  FDatabase := TMSSQLServerPersistenceMechanism.Create;
 end;
 
 procedure TRelationalDatabaseMapperMapTests.TestRetrieveObject;
 var
+  Database : IMSSQLServer;
   Mapper : IApplicationUserMapper;
-  User : IAppplicationUser;
+  User : IApplicationUser;
 begin
+  Database := TMSSQLServerPersistenceMechanism.Create;
+
   Mapper := TApplicationMapperMapper.Create;
   User := TApplicationUser.Create('RTAPSON', '020');
 
-  Mapper.RetrieveObject(User, FDatabase);
+  Mapper.RetrieveObject(User, Database);
   //Mapper.GetSelectSQLFor(User, FDatabase);
   Assert.AreEqual(User.ApplicationLoginId, 'RTAPSON');
 end;
 
-initialization
-  TDUnitX.RegisterTestFixture(TRelationalDatabaseMapperMapTests);
+//initialization
+//  TDUnitX.RegisterTestFixture(TRelationalDatabaseMapperMapTests);
 
 end.

@@ -1,2 +1,4 @@
 <?xml version="1.0"?>
-<TgConfig Version="3" SubLevelDisabled="False" />
+<TgConfig Version="3" SubLevelDisabled="False">
+  <Option Name="namespaceFolder.RTORM.PersistenceCritieria" Type="System.String" Value="RTORM\PersistenceCritieria" Category="General" IsBrowsable="False" />
+</TgConfig>

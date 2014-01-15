@@ -100,37 +100,62 @@ type
     function AsSQLClause: string; override;
   end;
 
+  IRetrieveCritieria = interface(IPersistenceCritieria)
+    ['{88AB714B-13DE-4CE5-8644-B427E8A907AE}']
+    //function AsCursor: IList;
+    //function AsRecords: IRecord;
+    function AsProxies : IList<IPersistentObject>;
+    function AsObjects: IList<IPersistentObject>;
+  end;
+
+  TRetrieveCritieria = class(TPersistentCritieria, IRetrieveCritieria)
+  private
+    function AsCursor: IList;
+  public
+    //function AsCursor: IList;
+    function AsObjects: IList<IPersistentObject>;
+    function AsProxies : IList<IPersistentObject>;
+  end;
+
 implementation
 
 uses
-  SysUtils, RTORM.Broker;
+  CodeSiteLogging, SysUtils, RTORM.Broker;
 
 { TPersistentCritieria }
 
 procedure TPersistentCritieria.AddOrCritieria;
 begin
-
+  CodeSite.EnterMethod(Self, 'AddOrCritieria');
+  CodeSite.ExitMethod(Self, 'AddOrCritieria');
 end;
 
 procedure TPersistentCritieria.AddSelect;
 begin
-
+  CodeSite.EnterMethod(Self, 'AddSelect');
+  CodeSite.ExitMethod(Self, 'AddSelect');
 end;
 
 procedure TPersistentCritieria.AddSelectEqualTo(AttributeName: string; Value: Integer);
 begin
+  CodeSite.EnterMethod(Self, 'AddSelectEqualTo');
   FCritieriaList.Add(TEqualToCritieria.Create(AttributeName, Value));
+  CodeSite.ExitMethod(Self, 'AddSelectEqualTo');
 end;
 
 procedure TPersistentCritieria.AddSelectEqualTo(AttributeName, Value: string);
 begin
+  CodeSite.EnterMethod(Self, 'AddSelectEqualTo');
   FCritieriaList.Add(TEqualToCritieria.Create(AttributeName, Value));
+  CodeSite.ExitMethod(Self, 'AddSelectEqualTo');
 end;
 
 constructor TPersistentCritieria.Create(ObjectClassName : string);
 begin
+  CodeSite.EnterMethod(Self, 'Create');
   FPersistentObject := ObjectClassName;
   FCritieriaList := TCollections.CreateList<ISelectionCritieria>;
+  CodeSite.ExitMethod(Self, 'Create');
 end;
 
 {constructor TPersistentCritieria.Create(ClassMap: IClassMap; AttributeMap: IAttributeMap);
@@ -245,10 +270,23 @@ end;
 function TEqualToCritieria.AsSQLClause: string;
 begin
   if FUseQuotes then
-    result := Format('= %s', [QuotedStr(FValueString)])
+    result := Format('%s = %s', [AttributeName, QuotedStr(FValueString)])
   else
-    result := Format('= %s', [FValueString]);
+    result := Format('%s = %s', [AttributeName, FValueString]);
+end;
+
+function TRetrieveCritieria.AsCursor: IList;
+begin
+end;
+
+function TRetrieveCritieria.AsObjects: IList<IPersistentObject>;
+begin
+
+end;
+
+function TRetrieveCritieria.AsProxies: IList<IPersistentObject>;
+begin
+
 end;
 
 end.
-

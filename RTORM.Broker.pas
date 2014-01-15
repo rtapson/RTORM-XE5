@@ -146,15 +146,13 @@ end;
 
 function TPersistenceBroker.GetMapperForClass(ObjectClassName: string): IClassMap;
 begin
-  FClassMaps.TryGetValue(ObjectClassName + '.' + GetDatabase, result);
-  if result = nil then
+  if not FClassMaps.TryGetValue(ObjectClassName + '.' + GetDatabase, result) then
     raise Exception.CreateFmt('Class mapper not found: %s.%s', [ObjectClassName, GetDatabase]);
 end;
 
 function TPersistenceBroker.GetMapperForClass(aObj: IPersistentObject; DataStore: string): IClassMap;
 begin
-  FClassMaps.TryGetValue(TPersistentObject(aObj).ClassName + '.' + DataStore, result);
-  if result = nil then
+  if not FClassMaps.TryGetValue(TPersistentObject(aObj).ClassName + '.' + DataStore, result) then
     raise Exception.CreateFmt('Class mapper not found: %s.%s', [TPersistentObject(aObj).ClassName, GetDatabase]);
 end;
 

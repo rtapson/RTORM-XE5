@@ -3,8 +3,11 @@ unit RTORM.PersistenceMechanism.Database;
 interface
 
 uses
-  RTORM.PersistenceMechanism, RTORM.Sql, RTORM.PersistentObject,
-  Spring.Collections, RTORM.Maps.Attributes;
+  RTORM.PersistenceMechanism,
+  RTORM.Sql,
+  RTORM.PersistentObject,
+  RTORM.Maps.Attributes,
+  Spring.Collections;
 
 type
   IRelationalDatabase = interface(IPersistenceMechanism)

@@ -20,7 +20,7 @@ type
 implementation
 
 uses
-  CodeSiteLogging, IOUtils, RTTI,  System.TypInfo, SysUtils, RTORM.Broker;
+  CodeSiteLogging, IOUtils, RTTI,  System.TypInfo, SysUtils;
 
 { TTextFile }
 
@@ -33,6 +33,7 @@ var
   EnumType: integer;
   aDate: TDateTime;
 begin
+  CodeSite.EnterMethod(Self, 'SaveObject');
   sTemp := TStringBuilder.Create;
   try
     context := TRttiContext.Create;
@@ -101,6 +102,7 @@ begin
   finally
     sTemp.Free;
   end;
+  CodeSite.ExitMethod(Self, 'SaveObject');
 end;
 
 //initialization

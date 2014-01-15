@@ -13,8 +13,8 @@ type
     [Setup]
     procedure Setup;
 
-    //[TearDown]
-    //procedure TearDown;
+    [TearDown]
+    procedure TearDown;
 
     [Test]
     procedure TestAddSqlClause;
@@ -36,13 +36,18 @@ type
 implementation
 
 uses
-  RTORM.Sql, SysUtils, DateUtils;
+  CodeSiteLogging, RTORM.Sql, SysUtils, DateUtils;
 
 { TSimpleSELECTTests }
 
 procedure TSimpleSELECTTests.Setup;
 begin
+  CodeSite.Enabled := False;
+end;
 
+procedure TSimpleSELECTTests.TearDown;
+begin
+  CodeSite.Enabled := True;
 end;
 
 procedure TSimpleSELECTTests.TestAddSqlClause;

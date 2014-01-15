@@ -3,10 +3,16 @@ unit RTORM.Maps;
 interface
 
 uses
-  RTORM.PersistentObject, RTORM.PersistenceMechanism, Spring.Collections,
-  RTORM.Maps.Attributes, RTORM.Sql,
-  RTORM.PersistenceCritieria, SysUtils, RTORM.UniDirectionalAssociationMap,
-  RTORM.PersistenceMechanism.Database;
+  SysUtils
+  ,Spring.Collections
+  ,RTORM.PersistentObject
+  ,RTORM.PersistenceMechanism
+  ,RTORM.Maps.Attributes
+  ,RTORM.Sql
+  ,RTORM.PersistenceCritieria
+  ,RTORM.UniDirectionalAssociationMap
+  ,RTORM.PersistenceMechanism.Database
+  ;
 
 type
   ETypeNotSupported = class(Exception);
@@ -80,7 +86,6 @@ type
     function GetDeleteSQLFor(aObj: IPersistentObject; PersistenceMechanism: IPersistenceMechanism): ISqlStatement;
   protected
     function GetSelectSQLFor(aObj: IPersistentObject; PersistenceMechanism: IPersistenceMechanism): ISqlStatement;
-//    procedure DatasetToObject(aDataset : TSQLDataset; aObj : IPersistentObject); virtual;
 //    procedure ProcessDataset(ClassName : string; aDataset: TSqlDataset; ObjectList : IList<IPersistentObject>); virtual;
   public
     procedure RetrieveObject(aObj: IPersistentObject; PersistenceMechanism: IPersistenceMechanism); override;
@@ -93,8 +98,7 @@ type
 implementation
 
 uses
-  CodeSiteLogging, rtti, System.TypInfo, {DB,} Classes, Spring.Services, Spring.Container,
-  spring;
+  CodeSiteLogging, rtti, System.TypInfo, Classes;
 
 {function GetTypeInfoFromName(aTypeName : String) : pTypeInfo;
 var
@@ -112,8 +116,10 @@ end;}
 
 constructor TClassMap.Create;
 begin
+  CodeSite.EnterMethod(Self, 'Create');
   FAttributeMaps := TCollections.CreateDictionary<string, IAttributeMap>;
   FAssociations := TCollections.CreateList<IUniDirectionalAssociationMap>;
+  CodeSite.ExitMethod(Self, 'Create');
 end;
 
 function TClassMap.GetAssociations: IList<IUniDirectionalAssociationMap>;
@@ -141,81 +147,20 @@ begin
   FForClass := Value;
 end;
 
-(*procedure TRelationalDatabaseMapper.DatasetToObject(aDataset: TSQLDataset; aObj: IPersistentObject);
-var
-  Attrib: IAttributeMap;
-  context: TRttiContext;
-  rtti: TRTTIType;
-  //pField: TRttiField;
-  value : TValue;
-  i : integer;
-begin
-  context := TRttiContext.Create;
-  try
-    rtti := context.GetType(TObject(aObj).ClassInfo);
-    try
-      {for pField in rtti.GetFields do
-      begin
-        CodeSite.Send(pField.ToString);
-      end;}
-
-      for Attrib in AttributeMaps.Values do
-      begin
-        case rtti.GetField('F' + Attrib.Name).FieldType.TypeKind of
-          tkWChar,
-          tkLString,
-          tkWString,
-          tkString,
-          tkChar,
-          tkUString : Value := aDataset.FieldByName(Attrib.ColumnMap.Name).AsString;
-          tkInteger,
-          tkInt64  :
-            begin
-              Value := StrToIntDef(aDataset.FieldByName(Attrib.ColumnMap.Name).AsString, 0);
-            end;
-          tkFloat  :
-            begin
-              case  aDataset.FieldByName(Attrib.ColumnMap.Name).DataType of
-                ftDateTime, ftTimeStamp : Value := aDataset.FieldByName(Attrib.ColumnMap.Name).AsDateTime;
-              else
-                Value := StrToFloat(aDataset.FieldByName(Attrib.ColumnMap.Name).AsString);
-              end;
-            end;
-          tkEnumeration:
-            begin
-              if rtti.GetField('F' + Attrib.Name).FieldType.Name = 'Boolean' then
-                Value := TValue.From(aDataset.FieldByName(Attrib.ColumnMap.Name).AsString = 'Y')
-              else
-                Value := TValue.FromOrdinal(Value.TypeInfo, GetEnumValue(Value.TypeInfo, aDataset.FieldByName(Attrib.ColumnMap.Name).AsString));
-            end;
-          tkSet:
-            begin
-              i :=  StringToSet(Value.TypeInfo,aDataset.FieldByName(Attrib.ColumnMap.Name).AsString);
-              TValue.Make(@i, Value.TypeInfo, Value);
-            end;
-        else
-          raise ETypeNotSupported.Create('Type not Supported');
-        end;
-        rtti.GetField('F' + Attrib.Name).SetValue(TObject(aObj), Value)
-      end;
-    finally
-      rtti.Free;
-    end;
-  finally
-    context.free;
-  end;
-end; *)
-
 procedure TRelationalDatabaseMapper.DeleteObject(aObj: IPersistentObject; PersistenceMechanism: IPersistenceMechanism);
 begin
+  CodeSite.EnterMethod(Self, 'DeleteObject');
   if Supports(PersistenceMechanism, IRelationalDatabase, FRelationalDatabase) then
     ExecuteSqlStatement(PersistenceMechanism, GetDeleteSQLFor(aObj, PersistenceMechanism));
+  CodeSite.ExitMethod(Self, 'DeleteObject');
 end;
 
 procedure TRelationalDatabaseMapper.ExecuteSqlStatement(PersistenceMechanism : IPersistenceMechanism; aSqlStatement: ISqlStatement);
 begin
+  CodeSite.EnterMethod(Self, 'ExecuteSqlStatement');
   FRelationalDatabase.Open;
   FRelationalDatabase.ExecuteStatementNonQuery(aSqlStatement);
+  CodeSite.ExitMethod(Self, 'ExecuteSqlStatement');
 end;
 
 function TRelationalDatabaseMapper.FindObjectsWhere(Critieria: IPersistenceCritieria; PersistenceMechanism: IPersistenceMechanism): IList<IPersistentObject>;
@@ -224,6 +169,8 @@ var
 //  aDataset: TSQLDataSet;
   //aObj : IPersistentObject;
 begin
+  CodeSite.EnterMethod(Self, 'FindObjectsWhere');
+
   if Supports(PersistenceMechanism, IRelationalDatabase, FRelationalDatabase) then
   begin
     SqlStatement := GetSelectSQL(False);
@@ -236,6 +183,7 @@ begin
       aDataset.Free;
     end;}
   end;
+  CodeSite.ExitMethod(Self, 'ExecuteSqlStatement');
 end;
 
 function TRelationalDatabaseMapper.GetSelectSql(Distinct: boolean): ISqlStatement;
@@ -243,6 +191,8 @@ var
   AttMap: IAttributeMap;
   IsFirst: boolean;
 begin
+  CodeSite.EnterMethod(Self, 'GetSeleteSql');
+
   result := TSqlStatement.Create;
   result.AddSqlClause(FRelationalDatabase.GetClauseStringSelect + ' ');
   if Distinct then
@@ -256,6 +206,7 @@ begin
       result.AddSqlClause(AttMap.ColumnMap.FullyQualifiedName);
     IsFirst := False;
   end;
+  CodeSite.ExitMethod(Self, 'GetSeleteSql');
 end;
 
 function TRelationalDatabaseMapper.GetFromAndWhereSql: ISqlStatement;
@@ -352,6 +303,8 @@ var
   IsFirst: boolean;
   Map: IAttributeMap;
 begin
+  CodeSite.EnterMethod(Self, 'GetWhereSql');
+
   result := TSqlStatement.Create;
   IsFirst := True;
   for Map in AttributeMaps.Values do
@@ -374,18 +327,23 @@ begin
       end;
     end;
   end;
+  CodeSite.ExitMethod(Self, 'GetWhereSql');
 end;
 
 procedure TRelationalDatabaseMapper.InsertObject(aObj: IPersistentObject; PersistenceMechanism: IPersistenceMechanism);
 begin
+  CodeSite.EnterMethod(Self, 'InsertObject');
   if Supports(PersistenceMechanism, IRelationalDatabase, FRelationalDatabase) then
     ExecuteSqlStatement(PersistenceMechanism, GetInsertSQLFor(aObj, PersistenceMechanism));
+  CodeSite.ExitMethod(Self, 'InsertObject');
 end;
 
 function TRelationalDatabaseMapper.OpenSqlStatement(PersistenceMechanism: IPersistenceMechanism; aSqlStatement: ISqlStatement): IPersistentObject;
 begin
+  CodeSite.EnterMethod(Self, 'OpenSqlStatement');
   FRelationalDatabase.Open;
   result := FRelationalDatabase.ExecuteSQL(aSqlStatement, Self.AttributeMaps, Fobj);
+  CodeSite.ExitMethod(Self, 'OpenSqlStatement');
 end;
 
 {procedure TRelationalDatabaseMapper.ProcessDataset(ClassName : string; aDataset: TSqlDataset; ObjectList: IList<IPersistentObject>);
@@ -415,6 +373,8 @@ var
 
   aMap : IAttributeMap;
 begin
+  CodeSite.EnterMethod(Self, 'RetrieveObject');
+
   if Supports(PersistenceMechanism, IRelationalDatabase, FRelationalDatabase) then
   begin
     FObj := aObj;
@@ -455,12 +415,15 @@ begin
       context.Free;
     end;
   end;
+  CodeSite.ExitMethod(Self, 'RetrieveObject');
 end;
 
 procedure TRelationalDatabaseMapper.UpdateObject(aObj: IPersistentObject; PersistenceMechanism: IPersistenceMechanism);
 begin
+  CodeSite.EnterMethod(Self, 'UpdateObject');
   if Supports(PersistenceMechanism, IRelationalDatabase, FRelationalDatabase) then
     ExecuteSqlStatement(PersistenceMechanism,  GetUpdateSQLFor(aObj, PersistenceMechanism));
+  CodeSite.ExitMethod(Self, 'UpdateObject');
 end;
 
 function TRelationalDatabaseMapper.GetSqlWithParamValues(aSqlStatement : ISqlStatement; aObj: IPersistentObject): ISqlStatement;
@@ -472,6 +435,8 @@ var
   EnumType: integer;
   aDate: TDateTime;
 begin
+  CodeSite.EnterMethod(Self, 'GetSqlWithParamValues');
+
   result := TSqlStatement.Create;
   result.AddSqlStatement(aSqlStatement);
   context := TRttiContext.Create;
@@ -562,6 +527,7 @@ begin
   finally
     context.Free;
   end;
+  CodeSite.ExitMethod(Self, 'GetSqlWithParamValues');
 end;
 
 function TRelationalDatabaseMapper.GetInsertSQLFor(aObj: IPersistentObject;
@@ -571,6 +537,8 @@ var
   isDone: boolean;
   IsFirst: boolean;
 begin
+  CodeSite.EnterMethod(Self, 'GetInsertSQLFor');
+
   result := TSqlStatement.Create;
   result.AddSqlClause(Format('%s ',
     [FRelationalDatabase.GetClauseStringInsert]));
@@ -612,6 +580,7 @@ begin
   end;
   result.AddSqlClause(FRelationalDatabase.GetClauseStringAndEnd);
   result := GetSqlWithParamValues(result, aObj);
+  CodeSite.ExitMethod(Self, 'GetInsertSQLFor');
 end;
 
 function TRelationalDatabaseMapper.GetUpdateSQLFor(aObj: IPersistentObject;
@@ -621,6 +590,8 @@ var
   IsFirst: boolean;
   isDone: boolean;
 begin
+  CodeSite.EnterMethod(Self, 'GetUpdateSQLFor');
+
   result := TSqlStatement.Create;
   result.AddSqlClause(Format('%s ',
     [FRelationalDatabase.GetClauseStringUpdate]));
@@ -649,15 +620,19 @@ begin
   end;
   result.AddSqlStatement(GetWhereSql);
   result := GetSqlWithParamValues(result, aObj);
+  CodeSite.ExitMethod(Self, 'GetUpdateSQLFor');
 end;
 
 function TRelationalDatabaseMapper.GetDeleteSQLFor(aObj: IPersistentObject;
   PersistenceMechanism: IPersistenceMechanism): ISqlStatement;
 begin
+  CodeSite.EnterMethod(Self, 'GetDeleteSQLFor');
+
   result := TSqlStatement.Create;
   result.AddSqlClause(Format('%s ', [FRelationalDatabase.GetClauseStringDelete]));
   result.AddSqlStatement(GetFromAndWhereSql);
   result := GetSqlWithParamValues(result, aObj);
+  CodeSite.ExitMethod(Self, 'GetDeleteSQLFor');
 end;
 
 function TRelationalDatabaseMapper.GetFromAndWhereSql(Critieria: IPersistenceCritieria): ISqlStatement;
@@ -667,6 +642,8 @@ var
   Map : IAttributeMap;
   PrimaryTable : string;
 begin
+  CodeSite.EnterMethod(Self, 'GetFromAndWhereSql');
+
   result := TSqlStatement.Create;
   result.AddSqlClause(Format(' %s ', [FRelationalDatabase.GetClauseStringFrom]));
 
@@ -714,6 +691,7 @@ begin
     else
       raise Exception.CreateFmt('AttributeMap not found for attribute %s', [aCritieria.AttributeName]);
   end;
+  CodeSite.ExitMethod(Self, 'GetFromAndWhereSql', result.ToString);
 end;
 
 function TRelationalDatabaseMapper.GetSelectSQLFor(aObj: IPersistentObject;
@@ -722,21 +700,22 @@ var
   SqlStatement: ISqlStatement;
 begin
   CodeSite.EnterMethod(Self, 'GetSelectSQLFor');
-  if Supports(PersistenceMechanism, IRelationalDatabase, FRelationalDatabase) then
-  begin
+  //if Supports(PersistenceMechanism, IRelationalDatabase, FRelationalDatabase) then
+  //begin
     SqlStatement := GetSelectSql(False);
 
     CodeSite.Send('SqlStatement1', SqlStatement.ToString);
     SqlStatement.AddSqlStatement(GetFromAndWhereSql);
+
     CodeSite.Send('SqlStatement2', SqlStatement.ToString);
     // Last step, setup the params.
     SqlStatement := GetSqlWithParamValues(SqlStatement, aObj);
     CodeSite.Send('SqlStatement3', SqlStatement.ToString);
     result := SqlStatement;
-  end
-  else
-    raise Exception.Create('Only SQL Datases are supported.');
-  CodeSite.ExitMethod(Self, 'GetSelectSQLFor');
+  //end
+  //else
+  //  raise Exception.Create('Only SQL Datases are supported.');
+  CodeSite.ExitMethod(Self, 'GetSelectSQLFor', result.ToString);
 end;
 
 end.

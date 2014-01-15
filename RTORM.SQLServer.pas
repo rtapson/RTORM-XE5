@@ -60,18 +60,22 @@ uses
 
 procedure TMSSQLServerPersistenceMechanism.Close;
 begin
+  CodeSite.EnterMethod(Self, 'Close');
+  FDataset.Close;
   FSQLConnection.Connected := False;
-  CoUninitialize;
+  CodeSite.ExitMethod(Self, 'Close');
 end;
 
 constructor TMSSQLServerPersistenceMechanism.Create;
 begin
+  CodeSite.EnterMethod(Self, 'Create');
+
   FSQLConnection := TSQLConnection.Create(nil);
 
   FDataset := TSQLDataSet.Create(nil);
   FDataset.SQLConnection := FSQLConnection;
   FDataset.CommandType := ctQuery;
-
+  CodeSite.ExitMethod(Self, 'Create');
 end;
 
 procedure TMSSQLServerPersistenceMechanism.DatasetToObject(aObj: IPersistentObject);
@@ -82,6 +86,8 @@ var
   value : TValue;
   i : integer;
 begin
+  CodeSite.EnterMethod(Self, 'DatasetToObject');
+
   context := TRttiContext.Create;
   try
     rtti := context.GetType(TObject(aObj).ClassInfo);
@@ -131,13 +137,18 @@ begin
   finally
     context.free;
   end;
+  CodeSite.ExitMethod(Self, 'DatasetToObject');
 end;
 
 destructor TMSSQLServerPersistenceMechanism.Destroy;
 begin
-//  Close;
+  CodeSite.EnterMethod(Self, 'Destroy');
+  Close;
+  FDataset.Free;
   FSQLConnection.Free;
+  CoUninitialize;
   inherited;
+  CodeSite.ExitMethod(Self, 'Destroy');
 end;
 
 function TMSSQLServerPersistenceMechanism.ExecuteSQL(aSQLStatement : ISqlStatement;  Attributes : IDictionary<string, IAttributeMap>; aObj : IPersistentObject): IPersistentObject;
@@ -156,6 +167,8 @@ procedure TMSSQLServerPersistenceMechanism.ExecuteStatementNonQuery(aSQLStatemen
 var
   aDataset : TSQLDataSet;
 begin
+  CodeSite.EnterMethod(Self, 'ExecuteStatementNonQuery');
+
   CodeSite.Send(aSQLStatement.ToString);
 //  CodeSite.Send(aSQLStatement.ToString);
 {  aDataset := TSQLDataset.Create(nil);
@@ -168,6 +181,7 @@ begin
   finally
     aDataset.Free;
   end;}
+  CodeSite.ExitMethod(Self, 'ExecuteStatementNonQuery');
 end;
 
 function TMSSQLServerPersistenceMechanism.GetClauseStringAndBegin: string;
@@ -257,6 +271,7 @@ end;}
 
 function TMSSQLServerPersistenceMechanism.Open: IPersistenceMechanism;
 begin
+  CodeSite.EnterMethod(Self, 'Open');
   CoInitializeEx(nil, 0);
   FSQLConnection.DriverName := 'MSSQL';
   FSQLConnection.Params.Values['driver'] := 'MSSQL';
@@ -268,6 +283,7 @@ begin
   //FSQLConnection.Params.Values['Password'] := '2bsxlim3';
   FSQLConnection.Connected := True;
   result := Self;
+  CodeSite.ExitMethod(Self, 'Open');
 end;
 
 {function TMSSQLServerPersistenceMechanism.ProcessSQL(const SQLStatement: string): PersistentObjectList;
@@ -289,7 +305,7 @@ begin
   end;
 end;}
 
-initialization
-  PersistenceBroker.AddPersistenceMechansim('SQL', TMSSQLServerPersistenceMechanism.Create);
+//initialization
+//  PersistenceBroker.AddPersistenceMechansim('SQL', TMSSQLServerPersistenceMechanism.Create);
 
 end.

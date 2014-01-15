@@ -2,9 +2,6 @@ unit RTORM.PersistenceMechanism;
 
 interface
 
-uses
-  RTORM.Sql, RTORM.PersistentObject;
-
 type
   IPersistenceMechanism = interface
   ['{BD0C032B-BAB3-4BD4-8A6D-7BAC2D14DC07}']
@@ -40,7 +37,6 @@ type
     procedure Close; override;
     function Open: IPersistenceMechanism; override;
   end;
-
 
 implementation
 

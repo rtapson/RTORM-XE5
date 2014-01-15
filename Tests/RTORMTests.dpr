@@ -23,8 +23,8 @@ uses
   RTORM.Broker in '..\RTORM.Broker.pas',
   ApplicationUserOM in '..\ApplicationUserOM.pas',
   RTORM.SQLServer in '..\RTORM.SQLServer.pas',
-  Spring.Container,
-  RTORM.PersistenceMechanism.Database in '..\RTORM.PersistenceMechanism.Database.pas';
+  RTORM.PersistenceMechanism.Database in '..\RTORM.PersistenceMechanism.Database.pas',
+  RTORM.Test.RetrieveCritieria in 'RTORM.Test.RetrieveCritieria.pas';
 
 var
   runner : ITestRunner;
@@ -33,7 +33,7 @@ var
   nunitLogger : ITestLogger;
 begin
   try
-    GlobalContainer.Build;
+    //GlobalContainer.Build;
 
     //Create the runner
     runner := TDUnitX.CreateRunner;
