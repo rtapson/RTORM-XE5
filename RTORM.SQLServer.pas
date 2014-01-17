@@ -27,7 +27,7 @@ type
     constructor Create;
     destructor Destroy; override;
     function Open: IPersistenceMechanism; override;
-    function ExecuteSQL(aSQLStatement : ISqlStatement; Attributes : IDictionary<string, IAttributeMap>; aObj : IPersistentObject): IPersistentObject; override;
+    function ExecuteSQL(aSQLStatement : ISqlStatement; Attributes : IDictionary<string, IAttributeMap>; const ClassName : string): IList<IPersistentObject>; override;
     procedure ExecuteStatementNonQuery(aSQLStatement : ISqlStatement); override;
     procedure Close; override;
     function GetClauseStringAndBegin: string; override;
@@ -54,7 +54,7 @@ implementation
 
 uses
   CodeSiteLogging, SysUtils, DBXMSSQL, DB, RTORM.Broker, RTORM.Maps,
-  Rtti, System.TypInfo, ActiveX;
+  Rtti, System.TypInfo, ActiveX, Spring.Services;
 
 { MSSQLServerPersistenceMechanism }
 
@@ -86,7 +86,7 @@ var
   value : TValue;
   i : integer;
 begin
-  CodeSite.EnterMethod(Self, 'DatasetToObject');
+//  CodeSite.EnterMethod(Self, 'DatasetToObject');
 
   context := TRttiContext.Create;
   try
@@ -137,7 +137,7 @@ begin
   finally
     context.free;
   end;
-  CodeSite.ExitMethod(Self, 'DatasetToObject');
+//  CodeSite.ExitMethod(Self, 'DatasetToObject');
 end;
 
 destructor TMSSQLServerPersistenceMechanism.Destroy;
@@ -151,15 +151,25 @@ begin
   CodeSite.ExitMethod(Self, 'Destroy');
 end;
 
-function TMSSQLServerPersistenceMechanism.ExecuteSQL(aSQLStatement : ISqlStatement;  Attributes : IDictionary<string, IAttributeMap>; aObj : IPersistentObject): IPersistentObject;
+function TMSSQLServerPersistenceMechanism.ExecuteSQL(aSQLStatement : ISqlStatement;  Attributes : IDictionary<string, IAttributeMap>; const ClassName : string): IList<IPersistentObject>;
+var
+  Obj : IPersistentObject;
 begin
   CodeSite.EnterMethod(Self, 'ExecuteSQL');
   CodeSite.Send(aSQLStatement.ToString);
+  Codesite.Send('ClassName', ClassName);
+
+  result := TCollections.CreateList<IPersistentObject>;
   FAttributes := Attributes;
   FDataset.CommandText := aSQLStatement.ToString;
   FDataset.Open;
-  DatasetToObject(aObj);
-  result := aObj;
+  while not FDataset.Eof do
+  begin
+    Obj := ServiceLocator.GetService<IPersistentObject>(ClassName);
+    DatasetToObject(Obj);
+    result.Add(Obj);
+    FDataset.Next;
+  end;
   CodeSite.ExitMethod(Self, 'ExecuteSQL');
 end;
 

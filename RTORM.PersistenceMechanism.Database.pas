@@ -13,7 +13,7 @@ type
   IRelationalDatabase = interface(IPersistenceMechanism)
   ['{A6E39C21-8C74-42E3-B7E1-1A4DB09020F5}']
     procedure ProcessSql;
-    function ExecuteSQL(aSQLStatement : ISqlStatement; Attributes : IDictionary<string, IAttributeMap>; aObj : IPersistentObject): IPersistentObject;
+    function ExecuteSQL(aSQLStatement : ISqlStatement; Attributes : IDictionary<string, IAttributeMap>; const ClassName : string): IList<IPersistentObject>;
     procedure ExecuteStatementNonQuery(aSQLStatement : ISqlStatement);
     function GetClauseStringDelete: string;
     function GetClauseStringSelect: string;
@@ -35,7 +35,7 @@ type
   TRelationalDatabase = class(TPersistenceMechanism, IRelationalDatabase)
   public
     procedure ProcessSql; virtual; abstract;
-    function ExecuteSQL(aSQLStatement : ISqlStatement; Attributes : IDictionary<string, IAttributeMap>; aObj : IPersistentObject): IPersistentObject; virtual; abstract;
+    function ExecuteSQL(aSQLStatement : ISqlStatement; Attributes : IDictionary<string, IAttributeMap>; const ClassName : string): IList<IPersistentObject>; virtual; abstract;
     procedure ExecuteStatementNonQuery(aSQLStatement : ISqlStatement); virtual; abstract;
     function GetClauseStringDelete: string; virtual; abstract;
     function GetClauseStringSelect: string; virtual; abstract;

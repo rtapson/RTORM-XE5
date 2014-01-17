@@ -47,7 +47,7 @@ begin
   Assert.AreEqual(User.ApplicationLoginId, 'RTAPSON');
 end;
 
-//initialization
-//  TDUnitX.RegisterTestFixture(TRelationalDatabaseMapperMapTests);
+initialization
+  TDUnitX.RegisterTestFixture(TRelationalDatabaseMapperMapTests);
 
 end.

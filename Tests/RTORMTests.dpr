@@ -6,6 +6,7 @@ program RTORMTests;
 
 uses
   System.SysUtils,
+  Spring.Container,
   SQLStatementTests in 'SQLStatementTests.pas',
   RTORM.Sql in '..\RTORM.Sql.pas',
   DUnitX.TestFramework,
@@ -33,7 +34,7 @@ var
   nunitLogger : ITestLogger;
 begin
   try
-    //GlobalContainer.Build;
+    GlobalContainer.Build;
 
     //Create the runner
     runner := TDUnitX.CreateRunner;

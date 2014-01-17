@@ -134,7 +134,7 @@ procedure TSqlStatement.AddSqlClause(SqlClause: string);
 begin
   CodeSite.EnterMethod(Self, 'AddSqlClause');
   FStringBuilder.Append(SqlClause);
-  CodeSite.ExitMethod(Self, 'AddSqlClause');
+  CodeSite.ExitMethod(Self, 'AddSqlClause', FStringBuilder.ToString);
 end;
 
 procedure TSqlStatement.AddSqlStatement(SqlStatement: ISqlStatement);

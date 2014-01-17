@@ -73,9 +73,8 @@ type
   TRelationalDatabaseMapper = class(TClassMap, IRelationalDatabaseMapper)
   private
     FRelationalDatabase : IRelationalDatabase;
-    FObj : IPersistentObject;
     procedure ExecuteSqlStatement(PersistenceMechanism: IPersistenceMechanism; aSqlStatement: ISqlStatement);
-    function OpenSqlStatement(PersistenceMechanism: IPersistenceMechanism; aSqlStatement: ISqlStatement): IPersistentObject;
+    function OpenSqlStatement(PersistenceMechanism: IPersistenceMechanism; aSqlStatement: ISqlStatement; const ClassName : string): IList<IPersistentObject>;
     function GetSelectSql(Distinct: boolean): ISqlStatement;
     function GetFromAndWhereSql: ISqlStatement; overload;
     function GetFromAndWhereSql(Critieria : IPersistenceCritieria): ISqlStatement; overload;
@@ -86,7 +85,6 @@ type
     function GetDeleteSQLFor(aObj: IPersistentObject; PersistenceMechanism: IPersistenceMechanism): ISqlStatement;
   protected
     function GetSelectSQLFor(aObj: IPersistentObject; PersistenceMechanism: IPersistenceMechanism): ISqlStatement;
-//    procedure ProcessDataset(ClassName : string; aDataset: TSqlDataset; ObjectList : IList<IPersistentObject>); virtual;
   public
     procedure RetrieveObject(aObj: IPersistentObject; PersistenceMechanism: IPersistenceMechanism); override;
     procedure DeleteObject(aObj: IPersistentObject; PersistenceMechanism: IPersistenceMechanism); override;
@@ -166,22 +164,15 @@ end;
 function TRelationalDatabaseMapper.FindObjectsWhere(Critieria: IPersistenceCritieria; PersistenceMechanism: IPersistenceMechanism): IList<IPersistentObject>;
 var
   SqlStatement : ISqlStatement;
-//  aDataset: TSQLDataSet;
-  //aObj : IPersistentObject;
 begin
   CodeSite.EnterMethod(Self, 'FindObjectsWhere');
 
+  result := TCollections.CreateList<IPersistentObject>;
   if Supports(PersistenceMechanism, IRelationalDatabase, FRelationalDatabase) then
   begin
     SqlStatement := GetSelectSQL(False);
     SqlStatement.AddSqlStatement(GetFromAndWhereSql(Critieria));
-    {aDataset := OpenSqlStatement(PersistenceMechanism, SqlStatement);
-    try
-      result := TCollections.CreateList<IPersistentObject>;
-      ProcessDataset(Critieria.ObjectClassName, aDataset, result);
-    finally
-      aDataset.Free;
-    end;}
+    result.AddRange(OpenSqlStatement(PersistenceMechanism, SqlStatement, Critieria.ObjectClassName));
   end;
   CodeSite.ExitMethod(Self, 'ExecuteSqlStatement');
 end;
@@ -206,7 +197,7 @@ begin
       result.AddSqlClause(AttMap.ColumnMap.FullyQualifiedName);
     IsFirst := False;
   end;
-  CodeSite.ExitMethod(Self, 'GetSeleteSql');
+  CodeSite.ExitMethod(Self, 'GetSeleteSql', result.ToString);
 end;
 
 function TRelationalDatabaseMapper.GetFromAndWhereSql: ISqlStatement;
@@ -277,7 +268,7 @@ begin
 
   result.AddSqlClause(' ' +FRelationalDatabase.GetClauseStringWhere);
 
-   KeyMaps.ForEach(
+  KeyMaps.ForEach(
       procedure(const Map : IAttributeMap)
       begin
         if WhereClause = '' then
@@ -285,17 +276,15 @@ begin
             [Map.ColumnMap.FullyQualifiedName, Map.Name,
             FRelationalDatabase.GetClauseStringAndEnd])
         else
-          WhereClause := WhereClause + Format(' %s %s = :%s %s',
+          WhereClause := WhereClause + Format('%s %s = :%s %s',
             [FRelationalDatabase.GetClauseStringAndBegin,
             Map.ColumnMap.FullyQualifiedName, Map.Name,
             FRelationalDatabase.GetClauseStringAndEnd]);
       end);
 
-
-
+  CodeSite.Send('WhereClause', WhereClause);
   result.AddSqlClause(' ' + WhereClause);
-  CodeSite.Send('result', result.ToString);
-  CodeSite.ExitMethod(Self, 'GetFromAndWhereSql');
+  CodeSite.ExitMethod(Self, 'GetFromAndWhereSql', result.ToString);
 end;
 
 function TRelationalDatabaseMapper.GetWhereSql: ISqlStatement;
@@ -338,26 +327,13 @@ begin
   CodeSite.ExitMethod(Self, 'InsertObject');
 end;
 
-function TRelationalDatabaseMapper.OpenSqlStatement(PersistenceMechanism: IPersistenceMechanism; aSqlStatement: ISqlStatement): IPersistentObject;
+function TRelationalDatabaseMapper.OpenSqlStatement(PersistenceMechanism: IPersistenceMechanism; aSqlStatement: ISqlStatement; const ClassName : string): IList<IPersistentObject>;
 begin
   CodeSite.EnterMethod(Self, 'OpenSqlStatement');
   FRelationalDatabase.Open;
-  result := FRelationalDatabase.ExecuteSQL(aSqlStatement, Self.AttributeMaps, Fobj);
+  result := FRelationalDatabase.ExecuteSQL(aSqlStatement, Self.AttributeMaps, ClassName);
   CodeSite.ExitMethod(Self, 'OpenSqlStatement');
 end;
-
-{procedure TRelationalDatabaseMapper.ProcessDataset(ClassName : string; aDataset: TSqlDataset; ObjectList: IList<IPersistentObject>);
-var
-  aObj : IPersistentObject;
-begin
-  while not aDataset.Eof do
-  begin
-    aObj := TInterfacedPersistent(GetClass(ClassName).Create) as IPersistentObject;
-    DataSetToObject(aDataset, aObj);
-    ObjectList.Add(aObj);
-    aDataset.Next;
-  end;
-end;}
 
 procedure TRelationalDatabaseMapper.RetrieveObject(aObj: IPersistentObject; PersistenceMechanism: IPersistenceMechanism);
 var
@@ -372,13 +348,17 @@ var
   prop: TRttiProperty;
 
   aMap : IAttributeMap;
+
+
+  ObjList : IList<IPersistentObject>;
 begin
   CodeSite.EnterMethod(Self, 'RetrieveObject');
 
   if Supports(PersistenceMechanism, IRelationalDatabase, FRelationalDatabase) then
   begin
-    FObj := aObj;
-    aObj := OpenSqlStatement(PersistenceMechanism, GetSelectSQLFor(aObj, PersistenceMechanism));
+    ObjList := OpenSqlStatement(PersistenceMechanism, GetSelectSQLFor(aObj, PersistenceMechanism), TObject(AObj).ClassName);
+
+    ObjList.TryGetFirst(aObj);
 
     context := TRttiContext.Create;
     try
@@ -641,32 +621,46 @@ var
   aCritieria: ISelectionCritieria;
   Map : IAttributeMap;
   PrimaryTable : string;
+
+  sList : TStringList;
 begin
   CodeSite.EnterMethod(Self, 'GetFromAndWhereSql');
 
   result := TSqlStatement.Create;
   result.AddSqlClause(Format(' %s ', [FRelationalDatabase.GetClauseStringFrom]));
 
-  for Map in AttributeMaps.Values do
-  begin
-    case Map.ColumnMap.ColumnType of
-      ktPrimary:
-        begin
-          PrimaryTable := Map.ColumnMap.TableMap.Name;
-          result.AddSqlClause(Map.ColumnMap.TableMap.FullyQualifiedName);
-        end;
-    end;
-  end;
+  sList := TStringList.Create;
+  try
+    sList.Duplicates := dupIgnore;
 
-  for Map in AttributeMaps.Values do
-  begin
-    case Map.ColumnMap.ColumnType of
-      ktForeign:
-        begin
-          //result.AddSqlClause(' ' + FRelationalDatabase.GetClauseStringInnerJoin + ' ' + Map.ColumnMap.TableMap.FullyQualifiedName + ' ON ' + PrimaryTable + ' = ' + Map.ColumnMap.FullyQualifiedName + ' ');
-          result.AddSqlClause(Format(' %s %s ON %s.%s = %s', [FRelationalDatabase.GetClauseStringInnerJoin, Map.ColumnMap.TableMap.FullyQualifiedName, PrimaryTable, Map.ColumnMap.Name, Map.ColumnMap.FullyQualifiedName]));
-        end;
+    for Map in AttributeMaps.Values do
+    begin
+      case Map.ColumnMap.ColumnType of
+        ktPrimary:
+          begin
+            if sList.IndexOf(Map.ColumnMap.TableMap.FullyQualifiedName) = -1 then
+            begin
+              PrimaryTable := Map.ColumnMap.TableMap.Name;
+              result.AddSqlClause(Map.ColumnMap.TableMap.FullyQualifiedName);
+              sList.Add(Map.ColumnMap.TableMap.FullyQualifiedName);
+            end;
+          end;
+      end;
     end;
+    sList.Clear;
+
+    for Map in AttributeMaps.Values do
+    begin
+      case Map.ColumnMap.ColumnType of
+        ktForeign:
+          begin
+            //result.AddSqlClause(' ' + FRelationalDatabase.GetClauseStringInnerJoin + ' ' + Map.ColumnMap.TableMap.FullyQualifiedName + ' ON ' + PrimaryTable + ' = ' + Map.ColumnMap.FullyQualifiedName + ' ');
+            result.AddSqlClause(Format(' %s %s ON %s.%s = %s', [FRelationalDatabase.GetClauseStringInnerJoin, Map.ColumnMap.TableMap.FullyQualifiedName, PrimaryTable, Map.ColumnMap.Name, Map.ColumnMap.FullyQualifiedName]));
+          end;
+      end;
+    end;
+  finally
+    sList.Free;
   end;
 
   result.AddSqlClause(Format(' %s ', [FRelationalDatabase.GetClauseStringWhere]));

@@ -184,7 +184,7 @@ end;
 
 procedure TForm1.Button4Click(Sender: TObject);
 var
-  User : IAppplicationUser;
+  User : IApplicationUser;
 begin
   User :=TApplicationUser.Create('RTAPSON', '020');
   User.Retrieve;

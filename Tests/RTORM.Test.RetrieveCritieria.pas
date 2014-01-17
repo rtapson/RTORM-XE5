@@ -27,8 +27,9 @@ type
 implementation
 
 uses
+  CodeSiteLogging,
   RTORM.PersistenceCritieria, Sysutils, ApplicationUserOM, Spring.Collections,
-  RTORM.Broker, RTORM.Maps;
+  RTORM.Broker, RTORM.Maps, RTORM.SQLServer, RTORM.PersistentObject;
 
 { TRetrieveCritieriaTests }
 
@@ -49,15 +50,35 @@ end;
 
 procedure TRetrieveCritieriaTests.TestRetrieveCritieria;
 var
+  SQL : IMSSQLServer;
   RetCrit : IRetrieveCritieria;
   ObjList : IList<IApplicationUser>;
+  aDateTime : TDateTime;
 begin
+  //Upfront work, not needed in an actual system
+  SQL := TMSSQLServerPersistenceMechanism.Create;
   PersistenceBroker.DataStore := 'SQL';
   PersistenceBroker.AddClassMap(TApplicationUser.ClassName + '.SQL', TApplicationMapperMapper.Create as IClassMap);
+  PersistenceBroker.AddPersistenceMechansim('SQL', SQL);
+
+  //Stuff that a developer would need to do
+  ObjList := TCollections.CreateList<IApplicationUser>;
 
   RetCrit := TRetrieveCritieria.Create(TApplicationUser.ClassName);
-  RetCrit.AddSelectEqualTo('ApplicationLoginId', 'RTAPSON');
-  RetCrit.Perform;
+//  RetCrit.AddSelectEqualTo('ApplicationLoginId', 'RTAPSON');
+  RetCrit.AddSelectEqualTo('CompanyNumber', '020');
+  aDateTime := Now - 360;
+  RetCrit.AddGreaterThan('LastLoginDate', aDateTime);
+  RetCrit.AddLessThanOrEqualTo('ApplicationLoginId', 'RTAPSON');
+
+  CodeSite.Send(RetCrit.ToString);
+{  RetCrit.Perform.ForEach(
+    procedure(const Obj : IPersistentObject)
+    begin
+      ObjList.Add(Obj as IApplicationUser);
+    end);}
+
+//  Assert.AreEqual(ObjList.First.ApplicationLoginId, 'RTAPSON');
 end;
 
 initialization

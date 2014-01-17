@@ -11,10 +11,12 @@ type
     function GetApplicationLoginId: string;
     function GetCompanyNumber: string;
     function GetADPEmployeeId: string;
-    procedure SetADPEmployeeId(const value: string);
-
     function GetEmailAddress: string;
+    procedure SetADPEmployeeId(const value: string);
     procedure SetEmailAddress(const value: string);
+    function GetLastLoginDate: TDateTime;
+
+    property LastLoginDate: TDateTime read GetLastLoginDate;
     property EmailAddress: string read GetEmailAddress write SetEmailAddress;
     property ADPEmployeeId: string read GetADPEmployeeId write SetADPEmployeeId;
     property CompanyNumber: string read GetCompanyNumber;
@@ -27,6 +29,7 @@ type
     FCompanyNumber : string;
     FADPEmployeeId : string;
     FEmailAddress : string;
+    FLastLoginDate : TDateTime;
 
     function GetApplicationLoginId: string;
     function GetCompanyNumber: string;
@@ -34,10 +37,12 @@ type
     procedure SetADPEmployeeId(const value: string);
     function GetEmailAddress: string;
     procedure SetEmailAddress(const value: string);
+    function GetLastLoginDate: TDateTime;
   public
     constructor Create(const ApplicationLoginId, CompanyNumber : string); overload;
     constructor Create(const ApplicationLoginId, ADPEmployeeId, CompanyNumber : string); overload;
 
+    property LastLoginDate: TDateTime read GetLastLoginDate;
     property EmailAddress: string read GetEmailAddress write SetEmailAddress;
     property ADPEmployeeId: string read GetADPEmployeeId write SetADPEmployeeId;
     property CompanyNumber: string read GetCompanyNumber;
@@ -57,7 +62,7 @@ type
 implementation
 
 uses
-  System.Classes, RTORM.Maps.Attributes{, RTORM.Broker, Spring.Container};
+  System.Classes, RTORM.Maps.Attributes{, RTORM.Broker}, Spring.Container;
 
 { TApplicationUser }
 
@@ -96,6 +101,11 @@ begin
   result := FEmailAddress;
 end;
 
+function TApplicationUser.GetLastLoginDate: TDateTime;
+begin
+  result := FLastLoginDate;
+end;
+
 procedure TApplicationUser.SetADPEmployeeId(const value: string);
 begin
   FADPEmployeeId := Value;
@@ -110,7 +120,7 @@ end;
 
 constructor TApplicationMapperMapper.Create;
 var
-  ID, ADP, CompanyNumber, EmailAddress : IAttributeMap;
+  ID, ADP, CompanyNumber, EmailAddress, LastLoginDate : IAttributeMap;
 begin
   inherited;
 
@@ -135,12 +145,16 @@ begin
   EmailAddress.ColumnMap.Name := 'email_address';
   EmailAddress.ColumnMap.TableMap.Name := 'APPLICATION_USER';
   AttributeMaps.Add('EmailAddress', EmailAddress);
+
+  LastLoginDate := TAttributeMap.Create('LastLoginDate');
+  LastLoginDate.ColumnMap.Name := 'last_login_date';
+  LastLoginDate.ColumnMap.TableMap.Name := 'APPLICATION_USER';
+  AttributeMaps.Add('LastLoginDate', LastLoginDate);
 end;
 
 initialization
   RegisterClasses([TApplicationUser]);
 //  PersistenceBroker.AddClassMap(TApplicationUser.ClassName + '.SQL', TApplicationMapperMapper.Create as IClassMap);
-//  GlobalContainer.RegisterComponent<TApplicationUser>.Implements<IAppplicationUser>(TApplicationUser.ClassName);
-
+  GlobalContainer.RegisterType<TApplicationUser>.Implements<IPersistentObject>(TApplicationUser.ClassName);
 
 end.
