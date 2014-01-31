@@ -95,7 +95,9 @@ type
     procedure SetName(const Value: string);
     function GetColumnMap: IColumnMap;
   public
-    constructor Create(aName : string);
+    constructor Create(const aName : string); overload;
+    constructor Create(const aName, TableName, ColumnName : string); overload;
+    constructor Create(const aName, TableName, ColumnName : string; KeyType : TKeyType); overload;
     property Name: string read GetName write SetName;
     property IsOptimistCheckAttribute: boolean read GetIsOptimistCheckAttribute write SetIsOptimistCheckAttribute;
     property IsProxy: boolean read GetIsProxy write SetIsProxy;
@@ -154,12 +156,26 @@ uses
 
 { TAttributeMap }
 
-constructor TAttributeMap.Create(aName : string);
+constructor TAttributeMap.Create(const aName : string);
 begin
   FName := aName;
   FColumnMap := TColumnMap.Create;
   FIsOptimistCheckAttribute := False;
   FIsProxy := False;
+end;
+
+constructor TAttributeMap.Create(const aName, TableName, ColumnName: string);
+begin
+  Create(aName);
+  ColumnMap.Name := ColumnName;
+  ColumnMap.TableMap.Name := TableName;
+end;
+
+constructor TAttributeMap.Create(const aName, TableName,
+  ColumnName: string; KeyType: TKeyType);
+begin
+  Create(aName, TableName, ColumnName);
+  ColumnMap.ColumnType := KeyType;
 end;
 
 function TAttributeMap.GetColumnMap: IColumnMap;

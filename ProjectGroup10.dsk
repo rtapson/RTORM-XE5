@@ -13,33 +13,23 @@ File_10=TSourceModule,'c:\program files (x86)\embarcadero\rad studio\12.0\source
 File_11=TSourceModule,'C:\Projects\RTORM-XE5\RTORM.Maps.TextFile.pas',0,1,18,12,29,0,0,,
 
 [Modules]
-Module0=C:\Projects\RTORM-XE5\RTORM.PersistentObject.pas
-Module1=C:\Projects\RTORM-XE5\Unit1.pas
-Module2=C:\Projects\RTORM-XE5\RTORM.SQLServer.pas
-Module3=C:\Projects\RTORM-XE5\RTORM.Maps.pas
-Module4=C:\Projects\RTORM-XE5\Tests\RTORM.Test.Maps.pas
+Module0=C:\Projects\RTORM-XE5\RTORM.SQLServer.pas
+Module1=C:\Projects\RTORM-XE5\RTORM.Maps.pas
+Module2=default.htm
+Module3=C:\Projects\RTORM-XE5\ApplicationUserOM.pas
+Module4=C:\Projects\RTORM-XE5\RTORM.Maps.Attributes.pas
 Module5=C:\Projects\RTORM-XE5\Tests\RTORM.Test.RetrieveCritieria.pas
-Module6=C:\Projects\RTORM-XE5\RTORM.PersistenceCritieria.pas
-Module7=C:\Projects\RTORM-XE5\RTORM.Maps.Attributes.pas
-Module8=C:\Projects\RTORM-XE5\ApplicationUserOM.pas
-Module9=C:\Projects\RTORM-XE5\RTORM.Broker.pas
-Module10=C:\Projects\RTORM-XE5\RTORM.Sql.pas
-Module11=C:\Projects\RTORM-XE5\RTORM.PersistenceMechanism.pas
-Module12=C:\Projects\RTORM-XE5\RTORM.PersistenceMechanism.Database.pas
-Module13=C:\Projects\RTORM-XE5\RoleOM.pas
-Module14=default.htm
+Module6=C:\Projects\RTORM-XE5\RTORM.Broker.pas
+Module7=C:\Projects\RTORM-XE5\RTORM.PersistentObject.pas
+Module8=C:\Projects\RTORM-XE5\Unit1.pas
+Module9=C:\Projects\RTORM-XE5\Tests\RTORM.Test.Maps.pas
+Module10=C:\Projects\RTORM-XE5\RTORM.PersistenceCritieria.pas
+Module11=C:\Projects\RTORM-XE5\RTORM.Sql.pas
+Module12=C:\Projects\RTORM-XE5\RTORM.PersistenceMechanism.pas
+Module13=C:\Projects\RTORM-XE5\RTORM.PersistenceMechanism.Database.pas
+Module14=C:\Projects\RTORM-XE5\RoleOM.pas
 Count=15
 EditWindowCount=1
-
-[C:\Projects\RTORM-XE5\RTORM.PersistentObject.pas]
-ModuleType=TSourceModule
-FormState=0
-FormOnTop=0
-
-[C:\Projects\RTORM-XE5\Unit1.pas]
-ModuleType=TSourceModule
-FormState=1
-FormOnTop=0
 
 [C:\Projects\RTORM-XE5\RTORM.SQLServer.pas]
 ModuleType=TSourceModule
@@ -51,17 +41,10 @@ ModuleType=TSourceModule
 FormState=0
 FormOnTop=0
 
-[C:\Projects\RTORM-XE5\Tests\RTORM.Test.Maps.pas]
-ModuleType=TSourceModule
-FormState=0
-FormOnTop=0
+[default.htm]
+ModuleType=TURLModule
 
-[C:\Projects\RTORM-XE5\Tests\RTORM.Test.RetrieveCritieria.pas]
-ModuleType=TSourceModule
-FormState=0
-FormOnTop=0
-
-[C:\Projects\RTORM-XE5\RTORM.PersistenceCritieria.pas]
+[C:\Projects\RTORM-XE5\ApplicationUserOM.pas]
 ModuleType=TSourceModule
 FormState=0
 FormOnTop=0
@@ -71,12 +54,32 @@ ModuleType=TSourceModule
 FormState=0
 FormOnTop=0
 
-[C:\Projects\RTORM-XE5\ApplicationUserOM.pas]
+[C:\Projects\RTORM-XE5\Tests\RTORM.Test.RetrieveCritieria.pas]
 ModuleType=TSourceModule
 FormState=0
 FormOnTop=0
 
 [C:\Projects\RTORM-XE5\RTORM.Broker.pas]
+ModuleType=TSourceModule
+FormState=0
+FormOnTop=0
+
+[C:\Projects\RTORM-XE5\RTORM.PersistentObject.pas]
+ModuleType=TSourceModule
+FormState=0
+FormOnTop=0
+
+[C:\Projects\RTORM-XE5\Unit1.pas]
+ModuleType=TSourceModule
+FormState=1
+FormOnTop=0
+
+[C:\Projects\RTORM-XE5\Tests\RTORM.Test.Maps.pas]
+ModuleType=TSourceModule
+FormState=0
+FormOnTop=0
+
+[C:\Projects\RTORM-XE5\RTORM.PersistenceCritieria.pas]
 ModuleType=TSourceModule
 FormState=0
 FormOnTop=0
@@ -101,12 +104,9 @@ ModuleType=TSourceModule
 FormState=0
 FormOnTop=0
 
-[default.htm]
-ModuleType=TURLModule
-
 [EditWindow0]
 ViewCount=15
-CurrentEditView=C:\Projects\RTORM-XE5\RTORM.PersistentObject.pas
+CurrentEditView=C:\Projects\RTORM-XE5\RTORM.SQLServer.pas
 View0=0
 View1=1
 View2=2
@@ -169,9 +169,9 @@ EditViewName=C:\Projects\RTORM-XE5\Unit1.pas
 [View2]
 CustomEditViewType=TEditView
 Module=C:\Projects\RTORM-XE5\RTORM.PersistentObject.pas
-CursorX=29
-CursorY=77
-TopLine=27
+CursorX=37
+CursorY=50
+TopLine=1
 LeftCol=1
 Elisions=
 Bookmarks=
@@ -182,7 +182,7 @@ CustomEditViewType=TEditView
 Module=C:\Projects\RTORM-XE5\RTORM.Broker.pas
 CursorX=31
 CursorY=169
-TopLine=149
+TopLine=167
 LeftCol=1
 Elisions=
 Bookmarks=
@@ -202,9 +202,9 @@ EditViewName=C:\Projects\RTORM-XE5\RoleOM.pas
 [View5]
 CustomEditViewType=TEditView
 Module=C:\Projects\RTORM-XE5\ApplicationUserOM.pas
-CursorX=51
-CursorY=150
-TopLine=112
+CursorX=74
+CursorY=14
+TopLine=1
 LeftCol=1
 Elisions=
 Bookmarks=
@@ -268,9 +268,9 @@ EditViewName=C:\Projects\RTORM-XE5\Tests\RTORM.Test.Maps.pas
 [View11]
 CustomEditViewType=TEditView
 Module=C:\Projects\RTORM-XE5\RTORM.Maps.Attributes.pas
-CursorX=5
-CursorY=307
-TopLine=130
+CursorX=3
+CursorY=177
+TopLine=153
 LeftCol=1
 Elisions=
 Bookmarks=
@@ -292,7 +292,7 @@ CustomEditViewType=TEditView
 Module=C:\Projects\RTORM-XE5\Tests\RTORM.Test.RetrieveCritieria.pas
 CursorX=1
 CursorY=84
-TopLine=35
+TopLine=50
 LeftCol=1
 Elisions=
 Bookmarks=
@@ -387,12 +387,12 @@ Docked=1
 State=0
 Left=0
 Top=0
-Width=2000
-Height=8486
+Width=1875
+Height=8374
 MaxLeft=-1
 MaxTop=-1
-ClientWidth=2000
-ClientHeight=8486
+ClientWidth=1875
+ClientHeight=8374
 TBDockHeight=5894
 LRDockWidth=2352
 Dockable=1
@@ -538,7 +538,6 @@ Column0Width=145
 Column1Width=100
 Column2Width=115
 Column3Width=250
-Column4Width=250
 
 [LocalVarsWindow]
 PercentageSizes=1
@@ -918,14 +917,14 @@ Create=1
 Visible=0
 Docked=1
 State=0
-Left=4
-Top=24
+Left=1280
+Top=116
 Width=2000
-Height=8740
+Height=8974
 MaxLeft=-1
 MaxTop=-1
-ClientWidth=2000
-ClientHeight=8740
+ClientWidth=1875
+ClientHeight=8628
 TBDockHeight=8974
 LRDockWidth=2000
 Dockable=1
@@ -1007,5 +1006,5 @@ ActiveTabID=fmGrepResults
 TabDockClients=PropertyInspector,fmGrepResults
 
 [ActiveProject]
-ActiveProject=1
+ActiveProject=2
 

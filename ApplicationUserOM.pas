@@ -119,37 +119,13 @@ end;
 { TApplicationMapperMapper }
 
 constructor TApplicationMapperMapper.Create;
-var
-  ID, ADP, CompanyNumber, EmailAddress, LastLoginDate : IAttributeMap;
 begin
   inherited;
-
-  ID := TAttributeMap.Create('ApplicationLoginId');
-  ID.ColumnMap.Name := 'application_login_id';
-  ID.ColumnMap.ColumnType := ktPrimary;
-  ID.ColumnMap.TableMap.Name := 'APPLICATION_USER';
-  AttributeMaps.Add('ApplicationLoginId', ID);
-
-  ADP := TAttributeMap.Create('ADPEmployeeId');
-  ADP.ColumnMap.Name := 'adp_employee_id';
-  ADP.ColumnMap.TableMap.Name := 'APPLICATION_USER';
-  AttributeMaps.Add('ADPEmployeeId', ADP);
-
-  CompanyNumber := TAttributeMap.Create('CompanyNumber');
-  CompanyNumber.ColumnMap.Name := 'company_number';
-  CompanyNumber.ColumnMap.ColumnType := ktPrimary;
-  CompanyNumber.ColumnMap.TableMap.Name := 'APPLICATION_USER';
-  AttributeMaps.Add('CompanyNumber', CompanyNumber);
-
-  EmailAddress := TAttributeMap.Create('EmailAddress');
-  EmailAddress.ColumnMap.Name := 'email_address';
-  EmailAddress.ColumnMap.TableMap.Name := 'APPLICATION_USER';
-  AttributeMaps.Add('EmailAddress', EmailAddress);
-
-  LastLoginDate := TAttributeMap.Create('LastLoginDate');
-  LastLoginDate.ColumnMap.Name := 'last_login_date';
-  LastLoginDate.ColumnMap.TableMap.Name := 'APPLICATION_USER';
-  AttributeMaps.Add('LastLoginDate', LastLoginDate);
+  AttributeMaps.Add('ApplicationLoginId', TAttributeMap.Create('CompanyNumber', 'APPLICATION_USER', 'application_login_id', ktPrimary));
+  AttributeMaps.Add('CompanyNumber', TAttributeMap.Create('CompanyNumber', 'APPLICATION_USER', 'company_number', ktPrimary));
+  AttributeMaps.Add('ADPEmployeeId', TAttributeMap.Create('ADPEmployeeId', 'APPLICATION_USER', 'adp_employee_id'));
+  AttributeMaps.Add('EmailAddress', TAttributeMap.Create('EmailAddress', 'APPLICATION_USER', 'email_address'));
+  AttributeMaps.Add('LastLoginDate', TAttributeMap.Create('LastLoginDate', 'APPLICATION_USER', 'last_login_date'));
 end;
 
 initialization
